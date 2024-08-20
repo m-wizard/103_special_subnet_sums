@@ -5,14 +5,10 @@ import (
 	"slices"
 )
 
-//  Slow port from Python's itertools:
+//  Slow port from Python's cryptic itertools:
 //  https://docs.python.org/3/library/itertools.html#itertools.combinations
 
-func combs(set []int, r int) []int {
-
-	fmt.Println("combs()")
-	
-	if r > len(set) { return []int{} }
+func gen_all_combs(set []int, r int) map[int][]int {
 
 	curr_comb := []int{}
 
@@ -20,61 +16,35 @@ func combs(set []int, r int) []int {
 
 	all_combs := make(map [int][]int)
 
+	if r > len(set) { return all_combs }
+
 	n := 0
 
 	//  Initialise some sets.
 	
 	for i := range r {
 
-		curr_comb = append(curr_comb, i)
-
 		all_combs[n] = append(all_combs[n], set[i])
+
+		curr_comb = append(curr_comb, i)
 
 		final_comb = append(final_comb, i + len(set) - r)
 
 	}
 
-	fmt.Println(curr_comb, final_comb)
-
 	final_comb_hit := false
 
 	for final_comb_hit == false {
 
-		//  Find first non-match
-
-		a := len(final_comb) - 1
-
-		found_mismatch := false
-
-		for found_mismatch == false && a >= 0 {
-
-			if curr_comb[a] != final_comb[a] && found_mismatch == false {
-
-				found_mismatch = true
-
-			} else { a -= 1 }
-
-			fmt.Println(a)
-			
-		}
-
-		curr_comb[a] += 1
-
-		b := a + 1
-
-		for b < len(curr_comb) {
-
-			curr_comb[b] = curr_comb[b - 1] + 1
-
-			b += 1
-
-		}
+		curr_comb = iterate_comb(curr_comb, final_comb, r)
 
 		n += 1
 
-		for c := range r {
+		//  Replace combination with unique values provided, and store.
 
-			all_combs[n] = append(all_combs[n], set[curr_comb[c]])
+		for j := range r {
+
+			all_combs[n] = append(all_combs[n], set[curr_comb[j]])
 
 		}
 
@@ -82,29 +52,49 @@ func combs(set []int, r int) []int {
 		
 	}
 
-	fmt.Println(all_combs, n)
-
-	
-
-	
-// 	yield tuple(set[i] for i in set)
-// 	while True:
-//         for i in reversed(range(r)):
-// 	if indices[i] != i + n - r:
-// 	break
-// else:
-// 	return
-//         indices[i] += 1
-//         for j in range(i+1, r):
-// 	indices[j] = indices[j-1] + 1
-	//         yield tuple(set[i] for i in indices)
-
-	return set
+	return all_combs
 	
 }
 
+func iterate_comb(curr_comb []int, final_comb []int, r int) []int {
+
+	//  Find first non-match, iterating from end of combinations, backwards.
+
+	a := len(final_comb) - 1
+
+	found_mismatch := false
+
+	for found_mismatch == false && a >= 0 {
+
+		if curr_comb[a] != final_comb[a] && found_mismatch == false {
+
+			found_mismatch = true
+
+		} else { a -= 1 }
+
+	}
+
+	//  Iterate the current combination, and reset subsequent numbers within it.
+
+	curr_comb[a] += 1
+
+	b := a + 1
+
+	for b < len(curr_comb) {
+
+		curr_comb[b] = curr_comb[b - 1] + 1
+
+		b += 1
+
+	}
+
+	return curr_comb
+
+}
+
+
 func main() {
 
-	combs([]int{1, 2, 3, 4, 5, 6, 7}, 3)
+	fmt.Println(gen_all_combs([]int{1, 2, 3, 4, 5, 6, 7}, 3))
 
 }
