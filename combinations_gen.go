@@ -175,7 +175,13 @@ func find_disjoint_sets(sets [][]int) [][]int {
 
 		// fmt.Println(set)
 
-		disjoint_sets = append(disjoint_sets, chk_for_same_digits(set))
+		res := chk_for_same_digits(set)
+
+		if res != nil {
+
+			disjoint_sets = append(disjoint_sets, res)
+
+		}
 		
 	}
 
