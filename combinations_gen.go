@@ -171,18 +171,55 @@ func find_disjoint_sets(sets [][]int) [][]int {
 
 	disjoint_sets := make([][]int, 0, 8010)
 
-	for _, v := range sets {
+	for _, set := range sets {
 
-		fmt.Println(v)
+		// fmt.Println(set)
+
+		disjoint_sets = append(disjoint_sets, chk_for_same_digits(set))
 		
 	}
+
+	fmt.Println(disjoint_sets)
 
 	return disjoint_sets
 	
 }
 
-func chk_for_same_digits(set []int) {
+func chk_for_same_digits(set []int) []int {
 
+	a, b := "", ""
+
+	if set[0] > set[1] {
+
+		a = strconv.Itoa(set[0])
+
+		b = strconv.Itoa(set[1])
+		
+	} else {
+
+		a = strconv.Itoa(set[1])
+
+		b = strconv.Itoa(set[0])
+
+	}
+
+	//  O(n^2) algo coming up which could be optimised to O(n), but negligible scale.
+
+	for _, p := range a {
+
+		for _, r := range b {
+
+			if p == r {
+
+				return nil
+
+			}
+
+		}
+
+	}
+
+	return set
 	
-
+	
 }
