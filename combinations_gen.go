@@ -3,20 +3,52 @@ package main
 import (
 	"fmt"
 	"slices"
+	"strconv"
 )
 
-//  Slow port from Python's cryptic itertools:
+func main() {
+
+	base_elems := []int{1, 2, 3, 4, 5, 6, 7}
+
+	all_combs_of_seven := make([][]int, 0, 128)
+
+	for i := 1 ; i < 7 ; i++ {
+
+		// fmt.Println(i)
+
+		all_combs_of_seven = append(all_combs_of_seven, gen_comb_set(base_elems, i, make([][]int, 0, 128))...)
+
+	}
+	
+	all_combs_of_seven = append(all_combs_of_seven, base_elems)
+
+	//  To re-use gen_comb_set(), convert output to compatible type.
+
+	acs_ints := convert_all_slices_to_ints(all_combs_of_seven)
+
+	acs_choose_two := gen_comb_set(acs_ints, 2, make([][]int, 0, 8010))
+
+	find_disjoint_sets(acs_choose_two)
+
+	// fmt.Println(acs_choose_two)
+
+	//  127_c_2_combs = make([][]int, 0, 8002)
+	//  fmt.Println(gen_comb_set([]int{1, 2, 3, 4, 5, 6, 7}, 3))
+
+}
+
+//  Ported from Python's barely readable itertools:
 //  https://docs.python.org/3/library/itertools.html#itertools.combinations
 
-func gen_all_combs(set []int, r int) map[int][]int {
+func gen_comb_set(set []int, r int, combs_set [][]int) [][]int {
 
 	curr_comb := []int{}
 
+	curr_comb_overlay := []int{}
+	
 	final_comb := []int{}
 
-	all_combs := make(map [int][]int)
-
-	if r > len(set) { return all_combs }
+	if r > len(set) { return combs_set }
 
 	n := 0
 
@@ -24,13 +56,15 @@ func gen_all_combs(set []int, r int) map[int][]int {
 	
 	for i := range r {
 
-		all_combs[n] = append(all_combs[n], set[i])
-
 		curr_comb = append(curr_comb, i)
+
+		curr_comb_overlay = append(curr_comb_overlay, set[curr_comb[i]])
 
 		final_comb = append(final_comb, i + len(set) - r)
 
 	}
+
+	combs_set = append(combs_set, curr_comb_overlay)
 
 	final_comb_hit := false
 
@@ -42,17 +76,21 @@ func gen_all_combs(set []int, r int) map[int][]int {
 
 		//  Replace combination with unique values provided, and store.
 
+		curr_comb_overlay := []int{}
+
 		for j := range r {
 
-			all_combs[n] = append(all_combs[n], set[curr_comb[j]])
+			curr_comb_overlay = append(curr_comb_overlay, set[curr_comb[j]])
 
 		}
+
+		combs_set = append(combs_set, curr_comb_overlay)
 
 		final_comb_hit = slices.Equal(curr_comb, final_comb)
 		
 	}
 
-	return all_combs
+	return combs_set
 	
 }
 
@@ -92,9 +130,59 @@ func iterate_comb(curr_comb []int, final_comb []int, r int) []int {
 
 }
 
+func convert_all_slices_to_ints(set [][]int) []int {
 
-func main() {
+	all := make([]int, 0, 8002)
 
-	fmt.Println(gen_all_combs([]int{1, 2, 3, 4, 5, 6, 7}, 3))
+	// fmt.Println(set)
+
+	for _, v := range set {
+
+		all = append(all, convert_digits_to_int(v))
+
+	}
+
+	return all
+	
+}
+
+func convert_digits_to_int(set []int) int {
+
+	//  Ripped from Stack Overflow in lieu of standard library functionality.
+	//  https://stackoverflow.com/questions/44729587
+
+	res := 0
+	
+	op := 1
+	
+	for i := len(set) - 1; i >= 0; i-- {
+		
+		res += set[i] * op
+		
+		op *= 10
+		
+	}
+	
+	return res
+
+}
+
+func find_disjoint_sets(sets [][]int) [][]int {
+
+	disjoint_sets := make([][]int, 0, 8010)
+
+	for _, v := range sets {
+
+		fmt.Println(v)
+		
+	}
+
+	return disjoint_sets
+	
+}
+
+func chk_for_same_digits(set []int) {
+
+	
 
 }
